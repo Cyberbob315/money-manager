@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/component_spacing"
+    android:paddingLeft="@dimen/component_spacing"
+    android:paddingRight="@dimen/component_spacing"
+    android:paddingTop="@dimen/component_spacing"
+    tools:context="com.example.iceman.project.activity.MainActivity">
+
+    <ListView
+        android:id="@+id/lv_current_balance"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/ll_button"
+        android:background="@drawable/shape_ds_giao_dich">
+
+    </ListView>
+
+    <LinearLayout
+        android:id="@+id/ll_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/btnAdd"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Thêm giao dịch"
+                android:gravity="center"/>
+            <Button
+                android:id="@+id/btnStatistic"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Thống kê giao dịch"
+                android:gravity="center"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/btnManage"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Quản lý tài khoản"
+                android:gravity="center"/>
+            <Button
+                android:id="@+id/btnInfo"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Giới thiệu"
+                android:gravity="center"/>
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:minHeight="48dp"
+    android:orientation="vertical"
+    android:background="@color/usui_blue"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
+
+    <RelativeLayout
+        android:layout_toLeftOf="@+id/btn_delete"
+        android:layout_centerVertical="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tiền mặt"
+            android:textColor="@color/white"/>
+
+        <TextView
+            android:id="@+id/tv_money_manage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_type"
+            android:text="Money"
+            android:textColor="@color/white"/>
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/btn_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:text="Xóa"
+        android:textColor="@color/white"
+        android:background="@color/colorRed"/>
+
+</RelativeLayout>
