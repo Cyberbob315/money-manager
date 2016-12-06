@@ -1,43 +1,82 @@
-package com.example.iceman.project.activity;
+package com.example.iceman.project.fragments;
+
 
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.iceman.project.R;
-import com.example.iceman.project.adapter.ManagementAdapter;
+import com.example.iceman.project.activity.ListTransactionsActivity;
+import com.example.iceman.project.activity.MainActivity;
+import com.example.iceman.project.adapter.RvManagementAdapter;
 import com.example.iceman.project.database.SQLiteDatabase;
 import com.example.iceman.project.dialog.SimpleDialog;
 import com.example.iceman.project.model.ItemCurrentBalance;
 
 import java.util.ArrayList;
 
-public class ManagementActivity extends AppCompatActivity {
+/**
+ * A simple {@link Fragment} subclass.
+ * Use the {@link FragmentManagement#newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class FragmentManagement extends Fragment {
+    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    public static final String TAG = FragmentManagement.class.getName();
+
+    private String mParam1;
+    private String mParam2;
+
+    View view;
+
     //    LinearLayout llList;
     EditText edtAddManageName;
     EditText edtMoney;
     Button btnAdd;
-    ListView lvManagement;
+    RecyclerView rvManagement;
     ArrayList<ItemCurrentBalance> lstCurrentBalance;
-    ManagementAdapter mManageAdapter;
+    RvManagementAdapter mManageAdapter;
     SQLiteDatabase mDatabase;
 
+    public FragmentManagement() {
+        // Required empty public constructor
+    }
+
+    public static FragmentManagement newInstance() {
+        FragmentManagement fragment = new FragmentManagement();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_management);
+        if (getArguments() != null) {
+
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        view = inflater.inflate(R.layout.activity_management, container, false);
         initControls();
         initEvents();
 //        addDynamicLayout();
         initListViewData();
+        return view;
     }
 
     private void initListViewData() {
@@ -56,8 +95,8 @@ public class ManagementActivity extends AppCompatActivity {
 
             } while (result.moveToNext());
         }
-        mManageAdapter = new ManagementAdapter(ManagementActivity.this, lstCurrentBalance);
-        lvManagement.setAdapter(mManageAdapter);
+        mManageAdapter = new RvManagementAdapter(getContext(), lstCurrentBalance);
+        rvManagement.setAdapter(mManageAdapter);
     }
 
 //    private void addDynamicLayout() {
@@ -92,30 +131,30 @@ public class ManagementActivity extends AppCompatActivity {
                 values.put(SQLiteDatabase.TBL_CB_COLUMN_MONEY, money);
                 long isSuccess = mDatabase.insertRecord(SQLiteDatabase.TBL_CURRENT_BALANCE, values);
                 if (isSuccess > 0) {
-                    Toast.makeText(ManagementActivity.this, "Insert thành công", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Insert thành công", Toast.LENGTH_SHORT).show();
                     edtMoney.setText("");
                     edtAddManageName.setText("");
                     edtAddManageName.requestFocus();
                     initListViewData();
                 } else {
-                    Toast.makeText(ManagementActivity.this, "Insert thất bại", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Insert thất bại", Toast.LENGTH_SHORT).show();
                 }
                 Intent itent = new Intent(MainActivity.ACTION_ADD_CB_SUCCESS);
                 Intent itent1 = new Intent(ListTransactionsActivity.ACTION_ACCOUNT_CHANGE);
-                sendBroadcast(itent);
-                sendBroadcast(itent1);
+                getContext().sendBroadcast(itent);
+                getContext().sendBroadcast(itent1);
             }
         });
     }
 
     private boolean validate(){
         if(edtAddManageName.getText().toString().trim().isEmpty()){
-            SimpleDialog.showDialog(ManagementActivity.this,"Cảnh báo","Bạn chưa nhập tên tài khoản");
+            SimpleDialog.showDialog(getContext(),"Cảnh báo","Bạn chưa nhập tên tài khoản");
             edtAddManageName.requestFocus();
             return true;
         }
         if(edtMoney.getText().toString().trim().isEmpty()){
-            SimpleDialog.showDialog(ManagementActivity.this,"Cảnh báo","Bạn chưa nhập số tiền");
+            SimpleDialog.showDialog(getContext(),"Cảnh báo","Bạn chưa nhập số tiền");
             edtMoney.requestFocus();
             return true;
         }
@@ -124,13 +163,15 @@ public class ManagementActivity extends AppCompatActivity {
 
     private void initControls() {
 //        llList = (LinearLayout) findViewById(R.id.ll_manage);
-        edtAddManageName = (EditText) findViewById(R.id.edt_add_manage);
-        edtMoney = (EditText) findViewById(R.id.edt_money);
+        edtAddManageName = (EditText) view.findViewById(R.id.edt_add_manage);
+        edtMoney = (EditText) view.findViewById(R.id.edt_money);
 
-        btnAdd = (Button) findViewById(R.id.btn_add_manage);
-//        lvManagement = (ListView) findViewById(R.id.lv_manage);
-        mDatabase = SQLiteDatabase.getInstance(ManagementActivity.this);
+        btnAdd = (Button) view.findViewById(R.id.btn_add_manage);
+        rvManagement = (RecyclerView) view.findViewById(R.id.rv_manage);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        rvManagement.setLayoutManager(layoutManager);
+
+        mDatabase = SQLiteDatabase.getInstance(getContext());
     }
-
 
 }

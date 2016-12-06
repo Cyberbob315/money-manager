@@ -86,7 +86,6 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
     private void initControls() {
 
-        spAccount = (Spinner) findViewById(R.id.sp_account);
         rdbReceive = (RadioButton) findViewById(R.id.rdb_receive);
         rdbSpend = (RadioButton) findViewById(R.id.rdb_spend);
         rdbSpend.setChecked(true);
@@ -135,6 +134,14 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
             edtReasonAdd.requestFocus();
             return false;
         }
+
+        Double money = Double.parseDouble(edtMoneyAdd.getText().toString());
+        ItemCurrentBalance itemAcc = (ItemCurrentBalance) spAccount.getSelectedItem();
+        if(money > itemAcc.getMoney() && rdbSpend.isChecked()){
+            SimpleDialog.showDialog(AddActivity.this,"Cảnh báo","Số tiền bạn nhập phải bé hơn số dư tài khoản!");
+            edtMoneyAdd.requestFocus();
+            return false;
+        }
         return true;
     }
 
@@ -172,6 +179,9 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
             edtReasonAdd.requestFocus();
             btnDate.setText(Common.getInstance().getCurrentDate(Common.DATE_SHOW));
             btnTime.setText(Common.getInstance().getCurrentTime());
+
+            Intent intent = new Intent(MainActivity.ACTION_ADD_CB_SUCCESS);
+            sendBroadcast(intent);
         } else {
             Toast.makeText(AddActivity.this, "Insert thất bại", Toast.LENGTH_SHORT).show();
         }
@@ -203,6 +213,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 if (validate()) {
                     saveDataToDatabase();
                     sendBroadcastAddSuccess();
+                    finish();
                 }
                 break;
             case R.id.btn_date_add:

@@ -10,15 +10,19 @@
     android:paddingTop="@dimen/component_spacing"
     tools:context="com.example.iceman.project.activity.MainActivity">
 
-    <ListView
-        android:id="@+id/lv_current_balance"
+    <TextView
+        android:id="@+id/tv_noti"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_centerVertical="true"/>
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/ll_button"
-        android:background="@drawable/shape_ds_giao_dich">
-
-    </ListView>
-
+        android:id="@+id/rv_currentbalance"
+        android:layout_above="@+id/ll_button">
+    </android.support.v7.widget.RecyclerView>
     <LinearLayout
         android:id="@+id/ll_button"
         android:layout_width="match_parent"

@@ -10,6 +10,12 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:background="@color/usui_blue"
     tools:context="com.example.iceman.project.activity.ListTransactionsActivity">
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/pb"
+        android:layout_centerInParent="true"
+        android:visibility="gone"/>
     <RelativeLayout
         android:id="@+id/rl_date"
         android:layout_width="match_parent"
@@ -119,11 +125,11 @@
             android:text="Loại giao dịch"
             android:gravity="center"/>
     </LinearLayout>
-    <ListView
-        android:id="@+id/lv_trans_item"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_trans_item"
         android:layout_below="@+id/ll_header"
         android:layout_width="match_parent"
         android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_height="match_parent"></ListView>
+        android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
 
 </RelativeLayout>

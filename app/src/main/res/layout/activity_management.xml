@@ -11,13 +11,13 @@
     android:background="@color/usui_blue"
     tools:context="com.example.iceman.project.activity.ManagementActivity">
 
-    <ListView
-        android:id="@+id/lv_manage"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_manage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/rl_add">
 
-    </ListView>
+    </android.support.v7.widget.RecyclerView>
 
     <RelativeLayout
         android:id="@+id/rl_add"

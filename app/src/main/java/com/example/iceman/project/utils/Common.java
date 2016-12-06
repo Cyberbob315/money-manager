@@ -12,13 +12,13 @@ import java.util.Date;
  */
 
 public class Common extends Application {
-    public static final String DATE_SAVE_TO_DB ="yyyy-MM-dd";
-    public static final String DATE_SHOW ="dd/MM/yyyy";
+    public static final String DATE_SAVE_TO_DB = "yyyy-MM-dd";
+    public static final String DATE_SHOW = "dd/MM/yyyy";
 
     public static Common _Instance;
 
     public static Common getInstance() {
-        if(_Instance == null){
+        if (_Instance == null) {
             _Instance = new Common();
         }
         return _Instance;
@@ -33,14 +33,15 @@ public class Common extends Application {
         return strDate;
     }
 
-    public  String getCurrentTime() {
+    public String getCurrentTime() {
         Calendar calendar = Calendar.getInstance();
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int minute = calendar.get(Calendar.MINUTE);
 
         return hour + ":" + minute;
     }
-    public String formatDate(String strDate,String strFormatSrc,String strFormatDes){
+
+    public String formatDate(String strDate, String strFormatSrc, String strFormatDes) {
         String strResult = "";
         SimpleDateFormat df = new SimpleDateFormat(strFormatSrc);
         SimpleDateFormat df1 = new SimpleDateFormat(strFormatDes);
@@ -52,5 +53,17 @@ public class Common extends Application {
         }
         return strResult;
     }
+
+    public Date parseStr2Date(String strDate,String dateFormat) {
+        SimpleDateFormat df = new SimpleDateFormat(dateFormat);
+        Date date = null;
+        try {
+            date = df.parse(strDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
+    }
+
 
 }

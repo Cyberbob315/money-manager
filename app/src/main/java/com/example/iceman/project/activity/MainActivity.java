@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnManage = (Button) findViewById(R.id.btnManage);
         btnInfo = (Button) findViewById(R.id.btnInfo);
 //        llList = (LinearLayout) findViewById(R.id.ll_ds);
-        lvCurrentBalance = (ListView) findViewById(R.id.lv_current_balance);
+//        lvCurrentBalance = (ListView) findViewById(R.id.lv_current_balance);
         mDatabase = SQLiteDatabase.getInstance(MainActivity.this);
     }
 

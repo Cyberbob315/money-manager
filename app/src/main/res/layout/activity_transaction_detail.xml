@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_transaction_detail"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@color/usui_blue"
+    tools:context="com.example.iceman.project.activity.TransactionDetailActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shape_trans_detail"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
+
+        <TextView
+            android:id="@+id/tv1"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text="Ngày giờ:"
+            android:textColor="@color/white"/>
+        <TextView
+            android:id="@+id/tv_date_detail"
+            android:layout_toRightOf="@+id/tv1"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ngày giờ"
+            android:textColor="@color/white"/>
+        <TextView
+            android:id="@+id/tv2"
+            android:layout_below="@+id/tv1"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:text="Nội dung:"
+            android:textColor="@color/white"/>
+        <TextView
+            android:id="@+id/tv_content_detail"
+            android:layout_toRightOf="@+id/tv2"
+            android:layout_below="@id/tv_date_detail"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nội dung"
+            android:textColor="@color/white"/>
+        <TextView
+            android:id="@+id/tv3"
+            android:layout_below="@id/tv2"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:text="Số tiền:"
+            android:textColor="@color/white"/>
+        <TextView
+            android:id="@+id/tv_money_detail"
+            android:layout_below="@+id/tv_content_detail"
+            android:layout_toRightOf="@id/tv3"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Số tiền"
+            android:textColor="@color/white"/>
+        <TextView
+            android:id="@+id/tv4"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv3"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:text="Số dư:"
+            android:textColor="@color/white"/>
+        <TextView
+            android:id="@+id/tv_balance_detail"
+            android:layout_toRightOf="@id/tv4"
+            android:layout_below="@id/tv_money_detail"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Số dư"
+            android:textColor="@color/white"/>
+    </RelativeLayout>
+
+</RelativeLayout>

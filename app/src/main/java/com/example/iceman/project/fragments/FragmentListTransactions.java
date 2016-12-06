@@ -1,45 +1,58 @@
-package com.example.iceman.project.activity;
+package com.example.iceman.project.fragments;
+
 
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.example.iceman.project.R;
-import com.example.iceman.project.adapter.TransactionAdapter;
+import com.example.iceman.project.adapter.RvTransactionAdapter;
 import com.example.iceman.project.database.SQLiteDatabase;
 import com.example.iceman.project.dialog.SimpleDialog;
+import com.example.iceman.project.interfaces.ShowFragmentListener;
 import com.example.iceman.project.model.ItemCurrentBalance;
 import com.example.iceman.project.model.ItemTransaction;
 import com.example.iceman.project.utils.Common;
-import com.example.iceman.project.utils.ItemTransComparator;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
-public class ListTransactionsActivity extends AppCompatActivity implements View.OnClickListener {
+/**
+ * A simple {@link Fragment} subclass.
+ * Use the {@link FragmentListTransactions#newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class FragmentListTransactions extends Fragment implements View.OnClickListener {
+    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    public static final String TAG = FragmentListTransactions.class.getName();
+
+    ShowFragmentListener mCallBack;
+
+
+    View view;
     public static final String ACTION_ADD_TRANS_SUCCESS = "com.example.iceman.project.ACTION_ADD_TRANS_SUCCESS";
     public static final String ACTION_ACCOUNT_CHANGE = "com.example.iceman.project.ACTION_ACCOUNT_CHANGE";
     public static final String KEY_TRANS = "key_trans";
@@ -48,38 +61,67 @@ public class ListTransactionsActivity extends AppCompatActivity implements View.
     Button btnDateEnd;
     Spinner spAccount;
     Spinner spTransType;
-    ListView lvTransaction;
+    RecyclerView rvTransaction;
+    ProgressBar pbLoadList;
 
     SQLiteDatabase mDatabase;
     ArrayList<ItemTransaction> lstTransList;
     ArrayList<ItemCurrentBalance> lstAccount;
     ArrayList<String> lstType;
 
-    TransactionAdapter mAdapterTrans;
+    RvTransactionAdapter mAdapterTrans;
     ArrayAdapter<ItemCurrentBalance> adapterAccount;
 
     int selectedTransItem;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_transactions);
 
-        initControls();
-        initEvents();
-        showListItemTransaction();
-        getSpinnerListAccount();
-        initSpinnerTransType();
+    public FragmentListTransactions() {
+        // Required empty public constructor
+    }
+
+
+    public static FragmentListTransactions newInstance() {
+        FragmentListTransactions fragment = new FragmentListTransactions();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallBack = (ShowFragmentListener) context;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+        }
         registerBroadcastAddTrans();
         registerBroadcastAccChange();
     }
 
-    private void showListItemTransaction() {
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        view = inflater.inflate(R.layout.activity_list_transactions, container, false);
+        initControls();
+        initEvents();
+
+        getSpinnerListAccount();
+        initSpinnerTransType();
+        new AsyncTaskGetListTransaction().execute();
+        return view;
+    }
+
+    private ArrayList<ItemTransaction> getListItemTransaction() {
         String sql = "select * from " + SQLiteDatabase.TBL_TRANSACTION
                 + " order by date(" + SQLiteDatabase.TBL_TRANS_COLUMN_DATE + ") ASC;";
         lstTransList = getListItemTransaction(sql);
-        mAdapterTrans = new TransactionAdapter(ListTransactionsActivity.this, lstTransList);
-        lvTransaction.setAdapter(mAdapterTrans);
+        return lstTransList;
+
     }
 
     private void initEvents() {
@@ -92,7 +134,7 @@ public class ListTransactionsActivity extends AppCompatActivity implements View.
                 ItemCurrentBalance selectedAccObj = (ItemCurrentBalance) spAccount.getSelectedItem();
                 int selectedTransType = spTransType.getSelectedItemPosition();
                 if (selectedAccPos == 0 && selectedTransType == 0) {
-                    showListItemTransaction();
+                    getListItemTransaction();
                 } else {
                     if (selectedTransType == 0) {
                         getCustomListItemTrans(selectedAccObj.getId(), -1);
@@ -114,7 +156,7 @@ public class ListTransactionsActivity extends AppCompatActivity implements View.
                 ItemCurrentBalance selectedAccObj = (ItemCurrentBalance) spAccount.getSelectedItem();
                 int selectedTransType = spTransType.getSelectedItemPosition();
                 if (selectedAccPos == 0 && selectedTransType == 0) {
-                    showListItemTransaction();
+                    getListItemTransaction();
                 } else {
                     if (selectedAccPos == 0) {
                         getCustomListItemTrans(-1, selectedTransType - 1);
@@ -130,23 +172,22 @@ public class ListTransactionsActivity extends AppCompatActivity implements View.
             }
         });
 
-        lvTransaction.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(ListTransactionsActivity.this, TransactionDetailActivity.class);
-                intent.putExtra(KEY_TRANS, lstTransList.get(position).getId());
-                startActivity(intent);
-
-            }
-        });
-
-        lvTransaction.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                selectedTransItem = position;
-                return false;
-            }
-        });
+//        rvTransaction.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                Log.d(TAG,lstTransList.get(position).getId()+"");
+//                mCallBack.onShowDetailFragment(lstTransList.get(position).getId());
+//
+//            }
+//        });
+//
+//        rvTransaction.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+//            @Override
+//            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+//                selectedTransItem = position;
+//                return false;
+//            }
+//        });
     }
 
     private void initSpinnerTransType() {
@@ -155,7 +196,7 @@ public class ListTransactionsActivity extends AppCompatActivity implements View.
         lstType.add(ItemTransaction.TRANS_TYPE_SPEND);
         lstType.add(ItemTransaction.TRANS_TYPE_RECEIVE);
 
-        ArrayAdapter<String> adapterType = new ArrayAdapter<String>(ListTransactionsActivity.this,
+        ArrayAdapter<String> adapterType = new ArrayAdapter<String>(getActivity(),
                 android.R.layout.simple_spinner_item, lstType);
         adapterType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
@@ -182,7 +223,7 @@ public class ListTransactionsActivity extends AppCompatActivity implements View.
             } while (result.moveToNext());
         }
 
-        adapterAccount = new ArrayAdapter<ItemCurrentBalance>(ListTransactionsActivity.this,
+        adapterAccount = new ArrayAdapter<ItemCurrentBalance>(getActivity(),
                 android.R.layout.simple_spinner_item, lstAccount);
         adapterAccount.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spAccount.setAdapter(adapterAccount);
@@ -232,15 +273,19 @@ public class ListTransactionsActivity extends AppCompatActivity implements View.
     }
 
     private void initControls() {
-        btnDateStart = (Button) findViewById(R.id.btn_date_start);
-        btnDateEnd = (Button) findViewById(R.id.btn_date_end);
-        spAccount = (Spinner) findViewById(R.id.sp_account_list_trans);
-        spTransType = (Spinner) findViewById(R.id.sp_trans_type);
-//        lvTransaction = (ListView) findViewById(R.id.lv_trans_item);
-        mDatabase = SQLiteDatabase.getInstance(ListTransactionsActivity.this);
+        btnDateStart = (Button) view.findViewById(R.id.btn_date_start);
+        btnDateEnd = (Button) view.findViewById(R.id.btn_date_end);
+        spAccount = (Spinner) view.findViewById(R.id.sp_account_list_trans);
+        spTransType = (Spinner) view.findViewById(R.id.sp_trans_type);
+        rvTransaction = (RecyclerView) view.findViewById(R.id.rv_trans_item);
+        pbLoadList = (ProgressBar) view.findViewById(R.id.pb);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
+        rvTransaction.setLayoutManager(layoutManager);
+
+        mDatabase = SQLiteDatabase.getInstance(getActivity());
         btnDateStart.setText(Common.getInstance().getCurrentDate(Common.DATE_SHOW));
         btnDateEnd.setText(Common.getInstance().getCurrentDate(Common.DATE_SHOW));
-        registerForContextMenu(lvTransaction);
+        registerForContextMenu(rvTransaction);
     }
 
     private void refreshList() {
@@ -253,8 +298,8 @@ public class ListTransactionsActivity extends AppCompatActivity implements View.
                 "order by date(+" + SQLiteDatabase.TBL_TRANS_COLUMN_DATE + ") ASC;";
         Log.d("SQL: ", sql);
         lstTransList = getListItemTransaction(sql);
-        mAdapterTrans = new TransactionAdapter(ListTransactionsActivity.this, lstTransList);
-        lvTransaction.setAdapter(mAdapterTrans);
+        mAdapterTrans = new RvTransactionAdapter(getActivity(), lstTransList);
+        rvTransaction.setAdapter(mAdapterTrans);
     }
 
 
@@ -268,7 +313,7 @@ public class ListTransactionsActivity extends AppCompatActivity implements View.
                 Date dateEnd = Common.getInstance().parseStr2Date(btnDateEnd.getText().toString(), Common.DATE_SHOW);
 
                 if (dateStart.compareTo(dateEnd) > 0) {
-                    SimpleDialog.showDialog(ListTransactionsActivity.this, "Cảnh báo", "Khoảng ngày không hợp lệ");
+                    SimpleDialog.showDialog(getActivity(), "Cảnh báo", "Khoảng ngày không hợp lệ");
                 }
                 Log.d("Thobg bao", "test");
                 refreshList();
@@ -284,7 +329,7 @@ public class ListTransactionsActivity extends AppCompatActivity implements View.
                 Date dateEnd = Common.getInstance().parseStr2Date(btnDateEnd.getText().toString(), Common.DATE_SHOW);
 
                 if (dateStart.compareTo(dateEnd) > 0) {
-                    SimpleDialog.showDialog(ListTransactionsActivity.this, "Cảnh báo", "Khoảng ngày không hợp lệ");
+                    SimpleDialog.showDialog(getActivity(), "Cảnh báo", "Khoảng ngày không hợp lệ");
                 }
                 refreshList();
             }
@@ -294,18 +339,18 @@ public class ListTransactionsActivity extends AppCompatActivity implements View.
     BroadcastReceiver broadcastReceiverAddTransSucess = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            showListItemTransaction();
+            getListItemTransaction();
         }
     };
 
     private void registerBroadcastAddTrans() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_ADD_TRANS_SUCCESS);
-        registerReceiver(broadcastReceiverAddTransSucess, filter);
+        getActivity().registerReceiver(broadcastReceiverAddTransSucess, filter);
     }
 
     private void unregisterBroadcastAddTrans() {
-        unregisterReceiver(broadcastReceiverAddTransSucess);
+        getActivity().unregisterReceiver(broadcastReceiverAddTransSucess);
     }
 
     BroadcastReceiver broadcastReceiverAccountChange = new BroadcastReceiver() {
@@ -318,15 +363,15 @@ public class ListTransactionsActivity extends AppCompatActivity implements View.
     private void registerBroadcastAccChange() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_ACCOUNT_CHANGE);
-        registerReceiver(broadcastReceiverAccountChange, filter);
+        getActivity().registerReceiver(broadcastReceiverAccountChange, filter);
     }
 
     private void unregisterBroadcastAccChange() {
-        unregisterReceiver(broadcastReceiverAccountChange);
+        getActivity().unregisterReceiver(broadcastReceiverAccountChange);
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         unregisterBroadcastAddTrans();
         unregisterBroadcastAccChange();
@@ -340,10 +385,10 @@ public class ListTransactionsActivity extends AppCompatActivity implements View.
         int day = calendar.get(Calendar.DATE);
         switch (v.getId()) {
             case R.id.btn_date_start:
-                new DatePickerDialog(ListTransactionsActivity.this, onDateSetListenerStart, year, month, day).show();
+                new DatePickerDialog(getContext(), onDateSetListenerStart, year, month, day).show();
                 break;
             case R.id.btn_date_end:
-                new DatePickerDialog(ListTransactionsActivity.this, onDateSetListenerEnd, year, month, day).show();
+                new DatePickerDialog(getContext(), onDateSetListenerEnd, year, month, day).show();
                 break;
         }
     }
@@ -383,12 +428,13 @@ public class ListTransactionsActivity extends AppCompatActivity implements View.
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        getMenuInflater().inflate(R.menu.item_trans_context_menu, menu);
+        getActivity().getMenuInflater().inflate(R.menu.item_trans_context_menu, menu);
     }
+
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.item_copy:
                 break;
             case R.id.item_delete:
@@ -402,7 +448,7 @@ public class ListTransactionsActivity extends AppCompatActivity implements View.
     }
 
     public void confirmDialog(ItemTransaction item) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Cảnh báo");
         builder.setMessage("Bạn có chắc chắn muốn xóa ?");
         builder.setPositiveButton("Đồng ý", new DialogInterface.OnClickListener() {
@@ -424,4 +470,28 @@ public class ListTransactionsActivity extends AppCompatActivity implements View.
 
         builder.create().show();
     }
+
+    private class AsyncTaskGetListTransaction extends AsyncTask<Void, Void, ArrayList<ItemTransaction>> {
+
+        @Override
+        protected void onPreExecute() {
+            pbLoadList.setVisibility(View.VISIBLE);
+            super.onPreExecute();
+        }
+
+        @Override
+        protected ArrayList<ItemTransaction> doInBackground(Void... params) {
+
+            return getListItemTransaction();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<ItemTransaction> aVoid) {
+            mAdapterTrans = new RvTransactionAdapter(getActivity(), aVoid);
+            rvTransaction.setAdapter(mAdapterTrans);
+            pbLoadList.setVisibility(View.GONE);
+            super.onPostExecute(aVoid);
+        }
+    }
+
 }
